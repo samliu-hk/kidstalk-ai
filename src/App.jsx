@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 
-const sentences = [const sentences = [
+const sentences = [
   // 入門級
   { id: 1, text: "Good morning, how are you?", level: "Easy" },
   { id: 2, text: "What is your name?", level: "Easy" },
