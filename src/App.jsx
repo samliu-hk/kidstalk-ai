@@ -1,11 +1,25 @@
 
 import { useState, useEffect } from 'react';
 
-const sentences = [
+const sentences = [const sentences = [
+  // 入門級
   { id: 1, text: "Good morning, how are you?", level: "Easy" },
-  { id: 2, text: "I like to eat apples and bananas.", level: "Medium" },
-  { id: 3, text: "Can we play football together today?", level: "Hard" },
+  { id: 2, text: "What is your name?", level: "Easy" },
+  { id: 3, text: "I am seven years old.", level: "Easy" },
+  
+  // 生活級
+  { id: 4, text: "I like to eat apples and bananas.", level: "Medium" },
+  { id: 5, text: "The weather is very sunny today.", level: "Medium" },
+  { id: 6, text: "My favorite color is blue.", level: "Medium" },
+  
+  // 挑戰級
+  { id: 7, text: "Can we play football together today?", level: "Hard" },
+  { id: 8, text: "Reading books helps us learn new things.", level: "Hard" },
+  { id: 9, text: "I want to be a scientist in the future.", level: "Hard" }
 ];
+  
+  
+
 
 export default function App() {
   const [currentSentence, setCurrentSentence] = useState(sentences[0]);
