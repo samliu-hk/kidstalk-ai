@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 const sentences = [
@@ -12,6 +13,14 @@ export default function App() {
   const [transcript, setTranscript] = useState("");
   const [score, setScore] = useState(null);
   const [feedback, setFeedback] = useState("");
+
+  // 新增：真人發音功能
+  const speak = (text) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US'; // 設定為美式英語
+    utterance.rate = 0.8;      // 語速稍微調慢一點，方便小朋友聽清楚
+    window.speechSynthesis.speak(utterance);
+  };
 
   const startListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -41,24 +50,38 @@ export default function App() {
     <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'sans-serif', backgroundColor: '#fff9e6', minHeight: '100vh' }}>
       <h1 style={{ color: '#ff6600' }}>🦁 英文口語小達人</h1>
       <div style={{ background: 'white', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '20px' }}>
-        <p>題目：<strong>{currentSentence.text}</strong></p>
+        <p style={{ fontSize: '20px' }}>題目：<strong>{currentSentence.text}</strong></p>
+        
+        {/* 新增：播音按鈕 */}
+        <button 
+          onClick={() => speak(currentSentence.text)}
+          style={{ fontSize: '24px', padding: '10px', borderRadius: '10px', border: 'none', background: '#007AFF', color: 'white', cursor: 'pointer', marginRight: '10px' }}
+        >
+          🔊 聽讀音
+        </button>
+
         <button 
           onClick={startListening} 
-          style={{ fontSize: '40px', padding: '10px 20px', borderRadius: '50%', border: 'none', background: isListening ? '#ff4d4d' : '#4CAF50', color: 'white', cursor: 'pointer' }}
+          style={{ fontSize: '24px', padding: '10px', borderRadius: '10px', border: 'none', background: isListening ? '#ff4d4d' : '#4CAF50', color: 'white', cursor: 'pointer' }}
         >
-          {isListening ? "🎤" : "🎙️"}
+          {isListening ? "🎤 正在聽..." : "🎙️ 開始練習"}
         </button>
-        <p>{isListening ? "正在聽你說話..." : "點擊麥克風開始"}</p>
       </div>
+
       {score !== null && (
         <div style={{ background: 'white', padding: '15px', borderRadius: '10px' }}>
           <h2>得分：{score}%</h2>
           <p>你說了："{transcript}"</p>
           <p>💡 {feedback}</p>
-          <button onClick={() => { 
-            const next = sentences[(currentSentence.id % sentences.length)]; 
-            setCurrentSentence(next); setScore(null); setTranscript(""); 
-          }}>下一題 ➡️</button>
+          <button 
+            style={{ padding: '10px 20px', fontSize: '18px', borderRadius: '8px', cursor: 'pointer' }}
+            onClick={() => { 
+              const next = sentences[(currentSentence.id % sentences.length)]; 
+              setCurrentSentence(next); setScore(null); setTranscript(""); 
+            }}
+          >
+            下一題 ➡️
+          </button>
         </div>
       )}
     </div>
