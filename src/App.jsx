@@ -110,9 +110,15 @@ export default function App() {
   const [transcript, setTranscript] = useState("");
   const [score, setScore] = useState(null);
   const [feedback, setFeedback] = useState("");
+  
+  // --- 【新增：最高分紀錄狀態】 ---
+  const [highScore, setHighScore] = useState(() => {
+    const saved = localStorage.getItem('highScore');
+    return saved ? parseInt(saved) : 0;
+  });
+
   const recognitionRef = useRef(null);
 
-  // 1. 真人發音 - 自動選取高品質人聲
   const speak = (text) => {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
@@ -125,7 +131,6 @@ export default function App() {
     window.speechSynthesis.speak(utterance);
   };
 
-  // 2. 開始錄音
   const startListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) return alert("請使用 Chrome 瀏覽器。");
@@ -141,7 +146,6 @@ export default function App() {
       const speechToText = event.results[0][0].transcript;
       setTranscript(speechToText);
 
-      // 計算分數
       const spokenWords = speechToText.toLowerCase().replace(/[.,?]/g, "").split(" ");
       const targetWords = currentSentence.text.toLowerCase().replace(/[.,?]/g, "").split(" ");
       let matchCount = 0;
@@ -151,18 +155,21 @@ export default function App() {
       setScore(accuracy);
       setFeedback(accuracy === 100 ? "太棒了！🎉" : accuracy > 70 ? "很好！👍" : "再試一次💪");
 
-      // --- 【自動釋放咪頭】 ---
+      // --- 【更新最高分紀錄】 ---
+      if (accuracy > highScore) {
+        setHighScore(accuracy);
+        localStorage.setItem('highScore', accuracy.toString());
+      }
+
       setIsListening(false);
       recognition.abort(); 
     };
 
     recognition.onerror = () => setIsListening(false);
     recognition.onend = () => setIsListening(false);
-
     recognition.start();
   };
 
-  // 3. 手動強制停止並釋放咪頭
   const stopListening = () => {
     if (recognitionRef.current) {
       recognitionRef.current.abort();
@@ -173,13 +180,18 @@ export default function App() {
 
   return (
     <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'sans-serif', backgroundColor: '#fff9e6', minHeight: '100vh' }}>
-      {/* 閃爍效果 CSS */}
       <style>{`
         @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); } }
         .blinking { animation: pulse-red 1s infinite; background-color: #ff4d4d !important; border: 2px solid white; }
+        .high-score-badge { display: inline-block; background: #FFD700; color: #8B4513; padding: 5px 15px; borderRadius: 20px; fontWeight: bold; fontSize: 18px; marginBottom: 15px; boxShadow: 0 2px 4px rgba(0,0,0,0.1); }
       `}</style>
 
-      <h1 style={{ color: '#ff6600' }}>🦁 英文口語小達人</h1>
+      <h1 style={{ color: '#ff6600', marginBottom: '10px' }}>🦁 英文口語小達人</h1>
+      
+      {/* 顯示最高分紀錄 */}
+      <div className="high-score-badge">
+        🏆 最高分紀錄：{highScore}%
+      </div>
       
       <div style={{ background: 'white', padding: '25px', borderRadius: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', marginBottom: '20px' }}>
         <p style={{ fontSize: '24px', margin: '10px 0' }}>題目：<strong>{currentSentence.text}</strong></p>
@@ -204,7 +216,8 @@ export default function App() {
 
       {score !== null && (
         <div style={{ background: 'white', padding: '20px', borderRadius: '15px', marginTop: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-          <h2 style={{ fontSize: '30px', color: '#333' }}>得分：{score}%</h2>
+          <h2 style={{ fontSize: '30px', color: '#333' }}>本次得分：{score}%</h2>
+          {score === highScore && score > 0 && <p style={{ color: '#ff6600', fontWeight: 'bold' }}>🎊 新紀錄誕生！ 🎊</p>}
           <p style={{ fontStyle: 'italic', color: '#555' }}>你說了："{transcript}"</p>
           <p style={{ fontSize: '28px', margin: '15px 0' }}>{feedback}</p>
           
