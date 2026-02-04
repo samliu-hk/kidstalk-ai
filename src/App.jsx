@@ -111,7 +111,7 @@ export default function App() {
   const [score, setScore] = useState(null);
   const [feedback, setFeedback] = useState("");
   
-  // --- 【新增：最高分紀錄狀態】 ---
+  // --- 最高分紀錄邏輯 ---
   const [highScore, setHighScore] = useState(() => {
     const saved = localStorage.getItem('highScore');
     return saved ? parseInt(saved) : 0;
@@ -119,6 +119,7 @@ export default function App() {
 
   const recognitionRef = useRef(null);
 
+  // 真人發音
   const speak = (text) => {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
@@ -131,6 +132,7 @@ export default function App() {
     window.speechSynthesis.speak(utterance);
   };
 
+  // 開始錄音
   const startListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) return alert("請使用 Chrome 瀏覽器。");
@@ -155,12 +157,13 @@ export default function App() {
       setScore(accuracy);
       setFeedback(accuracy === 100 ? "太棒了！🎉" : accuracy > 70 ? "很好！👍" : "再試一次💪");
 
-      // --- 【更新最高分紀錄】 ---
+      // --- 更新最高分紀錄 ---
       if (accuracy > highScore) {
         setHighScore(accuracy);
         localStorage.setItem('highScore', accuracy.toString());
       }
 
+      // --- 自動釋放咪頭 ---
       setIsListening(false);
       recognition.abort(); 
     };
@@ -170,6 +173,7 @@ export default function App() {
     recognition.start();
   };
 
+  // 手動停止錄音
   const stopListening = () => {
     if (recognitionRef.current) {
       recognitionRef.current.abort();
@@ -178,19 +182,29 @@ export default function App() {
     }
   };
 
+  // --- 【新增：重設紀錄功能】 ---
+  const resetHighScore = () => {
+    if(window.confirm("確定要清除最高分紀錄？")) {
+      setHighScore(0);
+      localStorage.removeItem('highScore');
+    }
+  };
+
   return (
     <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'sans-serif', backgroundColor: '#fff9e6', minHeight: '100vh' }}>
       <style>{`
         @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); } }
         .blinking { animation: pulse-red 1s infinite; background-color: #ff4d4d !important; border: 2px solid white; }
-        .high-score-badge { display: inline-block; background: #FFD700; color: #8B4513; padding: 5px 15px; borderRadius: 20px; fontWeight: bold; fontSize: 18px; marginBottom: 15px; boxShadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .high-score-container { display: inline-flex; align-items: center; background: #FFD700; color: #8B4513; padding: 5px 15px; borderRadius: 20px; marginBottom: 15px; boxShadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .reset-btn { margin-left: 10px; font-size: 12px; padding: 5px 8px; border-radius: 5px; border: none; background: #fff; cursor: pointer; color: #d9534f; font-weight: bold; }
       `}</style>
 
       <h1 style={{ color: '#ff6600', marginBottom: '10px' }}>🦁 英文口語小達人</h1>
       
-      {/* 顯示最高分紀錄 */}
-      <div className="high-score-badge">
-        🏆 最高分紀錄：{highScore}%
+      {/* 顯示最高分紀錄 + 重設按鈕 */}
+      <div className="high-score-container">
+        <span style={{ fontWeight: 'bold', fontSize: '18px' }}>🏆 最高分紀錄：{highScore}%</span>
+        <button className="reset-btn" onClick={resetHighScore}>🔄 重設</button>
       </div>
       
       <div style={{ background: 'white', padding: '25px', borderRadius: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', marginBottom: '20px' }}>
