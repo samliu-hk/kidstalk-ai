@@ -148,9 +148,12 @@ export default function App() {
     recognition.start();
   };
 
+ // 3. 強制停止錄音並釋放咪頭 (更新版)
   const stopListening = () => {
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
+      // 使用 abort() 而唔係 stop()，咁樣系統會更加直接閂咗個咪頭
+      recognitionRef.current.abort(); 
+      recognitionRef.current = null; // 清除引用，確保乾淨
       setIsListening(false);
     }
   };
