@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-// --- 這裡已經包含你要求的全部 100 題 ---
+// --- 包含全部 100 題題目 ---
 const sentences = [
   { id: 1, text: "Good morning, how are you?", level: "Easy" },
   { id: 2, text: "What is your name?", level: "Easy" },
@@ -112,6 +112,7 @@ export default function App() {
   const [feedback, setFeedback] = useState("");
   const recognitionRef = useRef(null);
 
+  // 1. 真人發音 - 自動選取高品質人聲
   const speak = (text) => {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
@@ -124,73 +125,96 @@ export default function App() {
     window.speechSynthesis.speak(utterance);
   };
 
+  // 2. 開始錄音
   const startListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) return alert("請使用 Chrome 瀏覽器。");
+
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
     recognition.lang = 'en-US';
+    recognition.continuous = false;
+
     recognition.onstart = () => setIsListening(true);
+
     recognition.onresult = (event) => {
       const speechToText = event.results[0][0].transcript;
       setTranscript(speechToText);
+
+      // 計算分數
       const spokenWords = speechToText.toLowerCase().replace(/[.,?]/g, "").split(" ");
       const targetWords = currentSentence.text.toLowerCase().replace(/[.,?]/g, "").split(" ");
       let matchCount = 0;
       targetWords.forEach(word => { if (spokenWords.includes(word)) matchCount++; });
       const accuracy = Math.round((matchCount / targetWords.length) * 100);
+      
       setScore(accuracy);
       setFeedback(accuracy === 100 ? "太棒了！🎉" : accuracy > 70 ? "很好！👍" : "再試一次💪");
+
+      // --- 【自動釋放咪頭】 ---
       setIsListening(false);
+      recognition.abort(); 
     };
+
     recognition.onerror = () => setIsListening(false);
     recognition.onend = () => setIsListening(false);
+
     recognition.start();
   };
 
- // 3. 強制停止錄音並釋放咪頭 (更新版)
+  // 3. 手動強制停止並釋放咪頭
   const stopListening = () => {
     if (recognitionRef.current) {
-      // 使用 abort() 而唔係 stop()，咁樣系統會更加直接閂咗個咪頭
-      recognitionRef.current.abort(); 
-      recognitionRef.current = null; // 清除引用，確保乾淨
+      recognitionRef.current.abort();
+      recognitionRef.current = null;
       setIsListening(false);
     }
   };
 
   return (
     <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'sans-serif', backgroundColor: '#fff9e6', minHeight: '100vh' }}>
+      {/* 閃爍效果 CSS */}
       <style>{`
         @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); } }
-        .blinking { animation: pulse-red 1s infinite; background-color: #ff4d4d !important; }
+        .blinking { animation: pulse-red 1s infinite; background-color: #ff4d4d !important; border: 2px solid white; }
       `}</style>
 
       <h1 style={{ color: '#ff6600' }}>🦁 英文口語小達人</h1>
       
-      <div style={{ background: 'white', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-        <p style={{ fontSize: '22px' }}>題目：<strong>{currentSentence.text}</strong></p>
+      <div style={{ background: 'white', padding: '25px', borderRadius: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', marginBottom: '20px' }}>
+        <p style={{ fontSize: '24px', margin: '10px 0' }}>題目：<strong>{currentSentence.text}</strong></p>
         <p style={{ color: '#888' }}>難度：{currentSentence.level}</p>
 
-        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '20px' }}>
+        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '25px' }}>
           {!isListening ? (
-            <button onClick={startListening} style={{ fontSize: '20px', padding: '12px 24px', borderRadius: '12px', border: 'none', background: '#4CAF50', color: 'white', cursor: 'pointer' }}>🎙️ 開始練習</button>
+            <button onClick={startListening} style={{ fontSize: '20px', padding: '15px 30px', borderRadius: '15px', border: 'none', background: '#4CAF50', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
+              🎙️ 開始練習
+            </button>
           ) : (
-            <button onClick={stopListening} className="blinking" style={{ fontSize: '20px', padding: '12px 24px', borderRadius: '12px', border: 'none', color: 'white', cursor: 'pointer' }}>🛑 停止錄音</button>
+            <button onClick={stopListening} className="blinking" style={{ fontSize: '20px', padding: '15px 30px', borderRadius: '15px', border: 'none', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
+              🛑 停止錄音
+            </button>
           )}
-          <button onClick={() => speak(currentSentence.text)} style={{ fontSize: '20px', padding: '12px 24px', borderRadius: '12px', border: 'none', background: '#007AFF', color: 'white', cursor: 'pointer' }}>🔊 聽讀音</button>
+
+          <button onClick={() => speak(currentSentence.text)} style={{ fontSize: '20px', padding: '15px 30px', borderRadius: '15px', border: 'none', background: '#007AFF', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
+            🔊 聽讀音
+          </button>
         </div>
       </div>
 
       {score !== null && (
-        <div style={{ background: 'white', padding: '15px', borderRadius: '10px', marginTop: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-          <h2>得分：{score}%</h2>
-          <p>你說了："{transcript}"</p>
-          <p style={{ fontSize: '24px' }}>{feedback}</p>
+        <div style={{ background: 'white', padding: '20px', borderRadius: '15px', marginTop: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+          <h2 style={{ fontSize: '30px', color: '#333' }}>得分：{score}%</h2>
+          <p style={{ fontStyle: 'italic', color: '#555' }}>你說了："{transcript}"</p>
+          <p style={{ fontSize: '28px', margin: '15px 0' }}>{feedback}</p>
+          
           <button 
-            style={{ padding: '12px 24px', fontSize: '18px', borderRadius: '8px', cursor: 'pointer', backgroundColor: '#ff9800', color: 'white', border: 'none' }}
+            style={{ padding: '15px 40px', fontSize: '20px', borderRadius: '12px', cursor: 'pointer', backgroundColor: '#ff9800', color: 'white', border: 'none', fontWeight: 'bold', boxShadow: '0 4px 0 #e68a00' }}
             onClick={() => { 
-              const next = sentences[Math.floor(Math.random() * sentences.length)];
-              setCurrentSentence(next); setScore(null); setTranscript(""); 
+              const randomIndex = Math.floor(Math.random() * sentences.length);
+              setCurrentSentence(sentences[randomIndex]); 
+              setScore(null); 
+              setTranscript(""); 
             }}
           >
             下一題 (隨機) ➡️
