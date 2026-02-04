@@ -1,8 +1,7 @@
+import { useState, useEffect, useRef } from 'react';
 
-import { useState, useEffect } from 'react';
-
+// --- 這裡已經包含你要求的全部 100 題 ---
 const sentences = [
-  // --- 1-20: 基礎問候與自我介紹 ---
   { id: 1, text: "Good morning, how are you?", level: "Easy" },
   { id: 2, text: "What is your name?", level: "Easy" },
   { id: 3, text: "I am seven years old.", level: "Easy" },
@@ -23,8 +22,6 @@ const sentences = [
   { id: 18, text: "Stand up and sit down.", level: "Easy" },
   { id: 19, text: "Raise your hand if you know.", level: "Easy" },
   { id: 20, text: "Listen to the music.", level: "Easy" },
-
-  // --- 21-40: 動物與大自然 ---
   { id: 21, text: "The cat is sleeping on the mat.", level: "Easy" },
   { id: 22, text: "A dog is man's best friend.", level: "Easy" },
   { id: 23, text: "The elephant has a very long trunk.", level: "Medium" },
@@ -45,8 +42,6 @@ const sentences = [
   { id: 38, text: "The flowers smell very nice.", level: "Easy" },
   { id: 39, text: "Plants need water to grow.", level: "Medium" },
   { id: 40, text: "Trees give us cool shade.", level: "Medium" },
-
-  // --- 41-60: 食物、顏色與形狀 ---
   { id: 41, text: "I like to eat apples and bananas.", level: "Medium" },
   { id: 42, text: "Red is my favorite color.", level: "Easy" },
   { id: 43, text: "The pizza is hot and yummy.", level: "Easy" },
@@ -67,8 +62,6 @@ const sentences = [
   { id: 58, text: "The star is yellow and bright.", level: "Easy" },
   { id: 59, text: "Grapes are purple or green.", level: "Medium" },
   { id: 60, text: "I eat rice and soup every day.", level: "Medium" },
-
-  // --- 61-80: 運動、愛好與活動 ---
   { id: 61, text: "Can we play football together today?", level: "Hard" },
   { id: 62, text: "I enjoy swimming in the pool.", level: "Hard" },
   { id: 63, text: "Reading books helps us learn.", level: "Hard" },
@@ -89,8 +82,6 @@ const sentences = [
   { id: 78, text: "I study English every day.", level: "Hard" },
   { id: 79, text: "Drawing is a creative way to express.", level: "Hard" },
   { id: 80, text: "I love to travel to different places.", level: "Hard" },
-
-  // --- 81-100: 進階句子與夢想 ---
   { id: 81, text: "I want to be a scientist in the future.", level: "Hard" },
   { id: 82, text: "Plants need water and sunlight.", level: "Hard" },
   { id: 83, text: "Please remember to wash your hands.", level: "Hard" },
@@ -112,8 +103,6 @@ const sentences = [
   { id: 99, text: "Protect the animals and the environment.", level: "Hard" },
   { id: 100, text: "You did a great job today!", level: "Hard" }
 ];
-  
-
 
 export default function App() {
   const [currentSentence, setCurrentSentence] = useState(sentences[0]);
@@ -121,22 +110,25 @@ export default function App() {
   const [transcript, setTranscript] = useState("");
   const [score, setScore] = useState(null);
   const [feedback, setFeedback] = useState("");
+  const recognitionRef = useRef(null);
 
-  // 新增：真人發音功能
   const speak = (text) => {
+    window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US'; // 設定為美式英語
-    utterance.rate = 0.8;      // 語速稍微調慢一點，方便小朋友聽清楚
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Google') || v.name.includes('Samantha')));
+    if (preferredVoice) utterance.voice = preferredVoice;
+    utterance.lang = 'en-US';
+    utterance.rate = 0.8;
+    utterance.pitch = 1.1;
     window.speechSynthesis.speak(utterance);
   };
 
   const startListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("你的瀏覽器不支持語音識別，請使用 Chrome。");
-      return;
-    }
+    if (!SpeechRecognition) return alert("請使用 Chrome 瀏覽器。");
     const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
     recognition.lang = 'en-US';
     recognition.onstart = () => setIsListening(true);
     recognition.onresult = (event) => {
@@ -151,48 +143,54 @@ export default function App() {
       setFeedback(accuracy === 100 ? "太棒了！🎉" : accuracy > 70 ? "很好！👍" : "再試一次💪");
       setIsListening(false);
     };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
     recognition.start();
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
   };
 
   return (
     <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'sans-serif', backgroundColor: '#fff9e6', minHeight: '100vh' }}>
-      <h1 style={{ color: '#ff6600' }}>🦁 英文口語小達人</h1>
-      <div style={{ background: 'white', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '20px' }}>
-        <p style={{ fontSize: '20px' }}>題目：<strong>{currentSentence.text}</strong></p>
-        
-        {/* 新增：播音按鈕 */}
-        <button 
-          onClick={() => speak(currentSentence.text)}
-          style={{ fontSize: '24px', padding: '10px', borderRadius: '10px', border: 'none', background: '#007AFF', color: 'white', cursor: 'pointer', marginRight: '10px' }}
-        >
-          🔊 聽讀音
-        </button>
+      <style>{`
+        @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); } }
+        .blinking { animation: pulse-red 1s infinite; background-color: #ff4d4d !important; }
+      `}</style>
 
-        <button 
-          onClick={startListening} 
-          style={{ fontSize: '24px', padding: '10px', borderRadius: '10px', border: 'none', background: isListening ? '#ff4d4d' : '#4CAF50', color: 'white', cursor: 'pointer' }}
-        >
-          {isListening ? "🎤 正在聽..." : "🎙️ 開始練習"}
-        </button>
+      <h1 style={{ color: '#ff6600' }}>🦁 英文口語小達人</h1>
+      
+      <div style={{ background: 'white', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+        <p style={{ fontSize: '22px' }}>題目：<strong>{currentSentence.text}</strong></p>
+        <p style={{ color: '#888' }}>難度：{currentSentence.level}</p>
+
+        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '20px' }}>
+          {!isListening ? (
+            <button onClick={startListening} style={{ fontSize: '20px', padding: '12px 24px', borderRadius: '12px', border: 'none', background: '#4CAF50', color: 'white', cursor: 'pointer' }}>🎙️ 開始練習</button>
+          ) : (
+            <button onClick={stopListening} className="blinking" style={{ fontSize: '20px', padding: '12px 24px', borderRadius: '12px', border: 'none', color: 'white', cursor: 'pointer' }}>🛑 停止錄音</button>
+          )}
+          <button onClick={() => speak(currentSentence.text)} style={{ fontSize: '20px', padding: '12px 24px', borderRadius: '12px', border: 'none', background: '#007AFF', color: 'white', cursor: 'pointer' }}>🔊 聽讀音</button>
+        </div>
       </div>
 
       {score !== null && (
-        <div style={{ background: 'white', padding: '15px', borderRadius: '10px' }}>
+        <div style={{ background: 'white', padding: '15px', borderRadius: '10px', marginTop: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
           <h2>得分：{score}%</h2>
           <p>你說了："{transcript}"</p>
-          <p>💡 {feedback}</p>
+          <p style={{ fontSize: '24px' }}>{feedback}</p>
           <button 
-            style={{ padding: '10px 20px', fontSize: '18px', borderRadius: '8px', cursor: 'pointer' }}
+            style={{ padding: '12px 24px', fontSize: '18px', borderRadius: '8px', cursor: 'pointer', backgroundColor: '#ff9800', color: 'white', border: 'none' }}
             onClick={() => { 
-  // 隨機從 100 題中抽一題
-  const randomIndex = Math.floor(Math.random() * sentences.length);
-  const next = sentences[randomIndex]; 
-  setCurrentSentence(next); 
-  setScore(null); 
-  setTranscript(""); 
-}}
+              const next = sentences[Math.floor(Math.random() * sentences.length)];
+              setCurrentSentence(next); setScore(null); setTranscript(""); 
+            }}
           >
-            下一題 ➡️
+            下一題 (隨機) ➡️
           </button>
         </div>
       )}
