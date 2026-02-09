@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // 初始化 Google AI (從 .env 讀取密碼)
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+// 暫時直接貼密碼，試吓係咪即刻通
+const genAI = new GoogleGenerativeAI("AIzaSyB...");
 
 export default function App() {
   // 預設一開始的題目
