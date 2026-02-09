@@ -2,9 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // 初始化 Google AI (從 .env 讀取密碼)
-// 暫時直接貼密碼，試吓係咪即刻通
-const genAI = new GoogleGenerativeAI("AIzaSyB...");
-
+// 暫時直接貼密碼
+const genAI = new GoogleGenerativeAI("AIzaSyCP6PYxc7TQ1ARxbA7xToNoY3zAsKvejvQ");
 export default function App() {
   // 預設一開始的題目
   const [currentSentence, setCurrentSentence] = useState({ text: "Hello, welcome to English class!", level: "P1" });
