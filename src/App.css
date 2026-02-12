@@ -1,42 +1,63 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+.container {
   text-align: center;
+  padding: 20px;
+  background-color: #f0f8ff;
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+  overflow: hidden;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.title { color: #ff4500; font-size: 2.5rem; }
+
+.lvl-btn {
+  padding: 20px 40px;
+  margin: 10px;
+  font-size: 1.5rem;
+  background: #00bfff;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.q-card {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  margin-top: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.q-text { font-size: 3rem; margin-bottom: 5px; color: #333; }
+.q-trans { font-size: 1.2rem; color: #666; margin-bottom: 20px; }
+
+.opt-btn {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  font-size: 1.2rem;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
 }
 
-.card {
-  padding: 2em;
+.opt-btn:hover { background: #e6f7ff; border-color: #1890ff; }
+
+.feedback { font-weight: bold; font-size: 1.2rem; height: 30px; }
+
+/* 🚀 火箭飛行動畫 */
+@keyframes flyUp {
+  0% { transform: translateY(100vh); opacity: 1; }
+  100% { transform: translateY(-100vh); opacity: 0; }
 }
 
-.read-the-docs {
-  color: #888;
+.rocket-fly {
+  position: fixed;
+  bottom: 0;
+  left: 45%;
+  font-size: 100px;
+  animation: flyUp 2s ease-in-out;
+  z-index: 999;
 }
