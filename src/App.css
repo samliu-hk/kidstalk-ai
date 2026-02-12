@@ -1,63 +1,22 @@
-.container {
-  text-align: center;
-  padding: 20px;
-  background-color: #f0f8ff;
-  min-height: 100vh;
-  font-family: 'Arial', sans-serif;
-  overflow: hidden;
-}
+.app { text-align: center; padding: 20px; background: #f0faff; min-height: 100vh; font-family: -apple-system, system-ui; }
+.title { color: #333; font-size: 1.8rem; margin-bottom: 30px; }
+.lvl-btn { width: 60px; height: 60px; margin: 10px; font-size: 1.2rem; background: #fff; border: 2px solid #ddd; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+.lvl-btn:hover { background: #4a90e2; color: white; border-color: #4a90e2; }
 
-.title { color: #ff4500; font-size: 2.5rem; }
+.q-card { background: white; padding: 40px 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 20px 0; }
+.zh-text { color: #888; margin-top: 10px; }
 
-.lvl-btn {
-  padding: 20px 40px;
-  margin: 10px;
-  font-size: 1.5rem;
-  background: #00bfff;
-  color: white;
-  border: none;
-  border-radius: 15px;
-  cursor: pointer;
-}
+.action-btn { width: 140px; padding: 15px; border-radius: 30px; border: none; font-size: 1rem; margin: 10px; font-weight: bold; cursor: pointer; }
+.mic { background: #4ECDC4; color: white; box-shadow: 0 4px #3db3ab; }
+.mic.active { background: #FF6B6B; animation: pulse 1s infinite; }
+.demo { background: #4a90e2; color: white; box-shadow: 0 4px #357abd; }
 
-.q-card {
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-  margin-top: 20px;
-}
+.score-circle { width: 80px; height: 80px; border: 5px solid; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 20px auto; font-size: 1.5rem; font-weight: bold; }
 
-.q-text { font-size: 3rem; margin-bottom: 5px; color: #333; }
-.q-trans { font-size: 1.2rem; color: #666; margin-bottom: 20px; }
+.rocket-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; animation: slideUp 3s forwards; z-index: 999; }
 
-.opt-btn {
-  display: block;
-  width: 100%;
-  padding: 15px;
-  margin: 10px 0;
-  font-size: 1.2rem;
-  border: 2px solid #ddd;
-  border-radius: 10px;
-  background: #fff;
-  cursor: pointer;
-}
+@keyframes slideUp { 0% { transform: translateY(100%); } 20% { transform: translateY(0); } 80% { transform: translateY(0); } 100% { transform: translateY(-100%); } }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
-.opt-btn:hover { background: #e6f7ff; border-color: #1890ff; }
-
-.feedback { font-weight: bold; font-size: 1.2rem; height: 30px; }
-
-/* 🚀 火箭飛行動畫 */
-@keyframes flyUp {
-  0% { transform: translateY(100vh); opacity: 1; }
-  100% { transform: translateY(-100vh); opacity: 0; }
-}
-
-.rocket-fly {
-  position: fixed;
-  bottom: 0;
-  left: 45%;
-  font-size: 100px;
-  animation: flyUp 2s ease-in-out;
-  z-index: 999;
-}
+.nav-btns button { margin: 10px; padding: 10px 20px; border-radius: 8px; border: 1px solid #ccc; background: #fff; }
+.back-btn { background: #eee !important; }
