@@ -1,217 +1,125 @@
-import { useState, useEffect, useRef } from 'react';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import React, { useState, useEffect } from 'react';
+import './App.css';
 
-// 初始化 Google AI (從 .env 讀取密碼)
-// 暫時直接貼密碼
-const genAI = new GoogleGenerativeAI("AIzaSyDV1NzxXdWR5xWnpmgBVmiDoUNJvoODslA");
-export default function App() {
-  // 預設一開始的題目
-  const [currentSentence, setCurrentSentence] = useState({ text: "Hello, welcome to English class!", level: "P1" });
-  
-  // 狀態管理
-  const [selectedGrade, setSelectedGrade] = useState("P1"); // 預設小一
-  const [isLoading, setIsLoading] = useState(false); // 係咪諗緊題目
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState("");
-  const [score, setScore] = useState(null);
-  const [feedback, setFeedback] = useState("");
-  
-  // 最高分紀錄
-  const [highScore, setHighScore] = useState(() => {
-    const saved = localStorage.getItem('highScore');
-    return saved ? parseInt(saved) : 0;
-  });
+// ==========================================
+// 📚 離線題庫中心 (你可以根據格式，繼續增加到 600 題)
+// ==========================================
+const questionBank = [
+  // P1: 基本單字與顏色 (範例)
+  { level: "P1", q: "Apple", t: "蘋果", options: ["Apple", "Orange", "Banana", "Pear"], a: "Apple" },
+  { level: "P1", q: "Red", t: "紅色", options: ["Blue", "Green", "Red", "Pink"], a: "Red" },
+  { level: "P1", q: "Dog", t: "狗", options: ["Cat", "Dog", "Bird", "Fish"], a: "Dog" },
+  { level: "P1", q: "Seven", t: "七", options: ["6", "7", "8", "9"], a: "Seven" },
+  { level: "P1", q: "Happy", t: "開心", options: ["Sad", "Happy", "Angry", "Tired"], a: "Happy" },
+  // ... 這裡可以繼續複製貼上 P1 題目
 
-  const recognitionRef = useRef(null);
+  // P2: 簡單句子與家庭 (範例)
+  { level: "P2", q: "He is my ____.", t: "他是我的父親。", options: ["mother", "father", "sister", "brother"], a: "father" },
+  { level: "P2", q: "I ____ to school.", t: "我走路去上學。", options: ["walk", "fly", "swim", "sleep"], a: "walk" },
+  { level: "P2", q: "This is a ____.", t: "這是一支鉛筆。", options: ["book", "bag", "pencil", "ruler"], a: "pencil" },
+  { level: "P2", q: "She ____ ice cream.", t: "她喜歡雪糕。", options: ["like", "likes", "liking", "liked"], a: "likes" },
+  // ... 這裡可以繼續複製貼上 P2 題目
 
-  // --- 核心功能：叫 AI 出題目 ---
-  const generateQuestion = async (grade) => {
-    setIsLoading(true); // 顯示「生成中...」
-    setScore(null);     // 清空舊分數
-    setTranscript("");  // 清空舊錄音
-    setFeedback("");
+  // P3: 比較級與時間 (範例)
+  { level: "P3", q: "The elephant is ____ than the cat.", t: "大象比貓大。", options: ["big", "bigger", "biggest", "small"], a: "bigger" },
+  { level: "P3", q: "It is ____ ten.", t: "現在是十點十五分。", options: ["half past", "quarter past", "to", "at"], a: "quarter past" },
+  { level: "P3", q: "I eat breakfast ____ the morning.", t: "我在早上食早餐。", options: ["at", "on", "in", "to"], a: "in" },
 
-    try {
-      // 這是命令 AI 的「咒語」 (Prompt)
-      // 第 36 行
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const prompt = `
-        You are an English teacher in Hong Kong using the EDB curriculum.
-        Generate ONE simple, short English sentence for a Primary ${grade.replace('P', '')} student.
-        
-        Rules:
-        - P1-P2: Very simple (SVO structure), basic vocabulary (family, school, colors). Max 6 words.
-        - P3-P4: Moderate (add adjectives, simple past tense). Max 9 words.
-        - P5-P6: Advanced (complex sentences, future tense, perfect tense). Max 12 words.
-        - The sentence must be polite and positive.
-        - OUTPUT ONLY THE SENTENCE. No quotes, no explanations.
-      `;
+  // P4: 過去式與數量 (範例)
+  { level: "P4", q: "I ____ a movie last night.", t: "我昨晚看了一場電影。", options: ["watch", "watches", "watched", "watching"], a: "watched" },
+  { level: "P4", q: "How ____ sugar do you need?", t: "你需要多少糖？", options: ["many", "much", "long", "often"], a: "much" },
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text().trim(); // 拎個結果出嚟
+  // P5: 將來式與副詞 (範例)
+  { level: "P5", q: "We ____ go to the zoo tomorrow.", t: "我們明天將會去動物園。", options: ["will", "did", "have", "are"], a: "will" },
+  { level: "P5", q: "He runs ____.", t: "他跑得很快。", options: ["quick", "quickly", "fastly", "slow"], a: "quickly" },
 
-      setCurrentSentence({ text: text, level: grade });
-    } catch (error) {
-      console.error("AI 出錯:", error);
-      alert("AI 腦閉塞，請檢查 API Key 或者網絡！(暫時用舊題目頂住先)");
-      setCurrentSentence({ text: "Have a nice day!", level: "Fallback" });
-    } finally {
-      setIsLoading(false); // 完成
-    }
+  // P6: 被動式與連接詞 (範例)
+  { level: "P6", q: "The cake ____ eaten by the boy.", t: "蛋糕被那個男孩吃了。", options: ["is", "was", "were", "been"], a: "was" },
+  { level: "P6", q: "I don't know ____ to do.", t: "我不知道該做什麼。", options: ["what", "which", "who", "where"], a: "what" },
+];
+
+function App() {
+  const [currentLevel, setCurrentLevel] = useState(null);
+  const [question, setQuestion] = useState(null);
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0); // 連勝紀錄
+  const [rocket, setRocket] = useState(false); // 火箭開關
+  const [msg, setMsg] = useState("");
+
+  // 隨機抽題
+  const nextQuestion = (lvl) => {
+    const filtered = questionBank.filter(i => i.level === lvl);
+    const randomQ = filtered[Math.floor(Math.random() * filtered.length)];
+    // 隨機打亂選項
+    const shuffled = [...randomQ.options].sort(() => Math.random() - 0.5);
+    setQuestion({ ...randomQ, shuffledOptions: shuffled });
+    setMsg("");
   };
 
-  // --- 按下 P1-P6 按鈕時 ---
-  const handleGradeChange = (grade) => {
-    setSelectedGrade(grade);
-    generateQuestion(grade); // 即刻出一題新嘅
+  const handleLevel = (lvl) => {
+    setCurrentLevel(lvl);
+    setScore(0);
+    setStreak(0);
+    nextQuestion(lvl);
   };
 
-  // --- 其他原有功能 (朗讀、錄音) ---
-  const speak = (text) => {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    // 嘗試搵靚聲
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Google') || v.name.includes('Samantha')));
-    if (preferredVoice) utterance.voice = preferredVoice;
-    utterance.lang = 'en-US';
-    utterance.rate = 0.8; 
-    window.speechSynthesis.speak(utterance);
-  };
+  const checkAnswer = (ans) => {
+    if (ans === question.a) {
+      const newStreak = streak + 1;
+      setScore(score + 1);
+      setStreak(newStreak);
+      setMsg("✅ 答對了！你真棒！");
 
-  const startListening = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return alert("請使用 Chrome 瀏覽器。");
-
-    const recognition = new SpeechRecognition();
-    recognitionRef.current = recognition;
-    recognition.lang = 'en-US';
-    recognition.continuous = false;
-
-    recognition.onstart = () => setIsListening(true);
-
-    recognition.onresult = (event) => {
-      const speechToText = event.results[0][0].transcript;
-      setTranscript(speechToText);
-
-      // 計分邏輯 (寬容版)
-      const cleanText = (str) => str.toLowerCase().replace(/[.,?!]/g, "");
-      const spokenWords = cleanText(speechToText).split(" ");
-      const targetWords = cleanText(currentSentence.text).split(" ");
-      
-      let matchCount = 0;
-      targetWords.forEach(word => { if (spokenWords.includes(word)) matchCount++; });
-      const accuracy = Math.round((matchCount / targetWords.length) * 100);
-      
-      setScore(accuracy);
-      setFeedback(accuracy === 100 ? "太棒了！🎉" : accuracy > 70 ? "很好！👍" : "再試一次💪");
-
-      if (accuracy > highScore) {
-        setHighScore(accuracy);
-        localStorage.setItem('highScore', accuracy.toString());
+      // 🚀 每 10 題彈出火箭
+      if (newStreak > 0 && newStreak % 10 === 0) {
+        setRocket(true);
+        setTimeout(() => setRocket(false), 2000);
       }
-      
-      setIsListening(false);
-      recognition.abort(); 
-    };
 
-    recognition.onerror = () => setIsListening(false);
-    recognition.onend = () => setIsListening(false);
-    recognition.start();
-  };
-
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.abort();
-      setIsListening(false);
-    }
-  };
-
-  const resetHighScore = () => {
-    if(window.confirm("確定要清除最高分紀錄？")) {
-      setHighScore(0);
-      localStorage.removeItem('highScore');
+      setTimeout(() => nextQuestion(currentLevel), 1200);
+    } else {
+      setMsg(`❌ 答錯啦，正確答案是：${question.a}`);
+      setStreak(0); // 斷連勝
     }
   };
 
   return (
-    <div style={{ padding: '20px', textAlign: 'center', fontFamily: 'sans-serif', backgroundColor: '#e0f7fa', minHeight: '100vh' }}>
-      <style>{`
-        @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); } }
-        .blinking { animation: pulse-red 1s infinite; background-color: #ff4d4d !important; border: 2px solid white; }
-        .grade-btn { margin: 5px; padding: 10px 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: #ddd; color: #555; transition: 0.2s; }
-        .grade-btn.active { background: #007AFF; color: white; transform: scale(1.1); box-shadow: 0 4px 8px rgba(0,122,255,0.3); }
-        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
+    <div className="container">
+      {/* 🚀 火箭動畫 */}
+      {rocket && <div className="rocket-fly">🚀</div>}
 
-      <h1 style={{ color: '#006064', marginBottom: '10px' }}>🦁 AI 英文口語老師</h1>
-      
-      {/* 難度選擇按鈕 */}
-      <div style={{ marginBottom: '20px', background: 'white', padding: '10px', borderRadius: '15px', display: 'inline-block' }}>
-        <p style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#888' }}>📚 選擇年級 (香港課程)</p>
-        {['P1', 'P2', 'P3', 'P4', 'P5', 'P6'].map((grade) => (
-          <button 
-            key={grade}
-            className={`grade-btn ${selectedGrade === grade ? 'active' : ''}`}
-            onClick={() => handleGradeChange(grade)}
-            disabled={isLoading}
-          >
-            {grade}
-          </button>
-        ))}
-      </div>
+      <h1 className="title">Kidstalk 英文大挑戰 🌟</h1>
 
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '15px' }}>
-        <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#006064', marginRight: '10px' }}>🏆 最高分：{highScore}%</span>
-        <button onClick={resetHighScore} style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '5px', border: '1px solid #ccc', background: 'white', cursor: 'pointer' }}>🔄</button>
-      </div>
-      
-      <div style={{ background: 'white', padding: '25px', borderRadius: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', marginBottom: '20px', minHeight: '180px' }}>
-        {isLoading ? (
-          <div style={{ paddingTop: '50px' }}>
-            <div style={{ fontSize: '40px' }}>🤖</div>
-            <p>AI 老師出題中...</p>
+      {!currentLevel ? (
+        <div className="menu">
+          <h2>請選擇年級：</h2>
+          <div className="btn-group">
+            {['P1', 'P2', 'P3', 'P4', 'P5', 'P6'].map(l => (
+              <button key={l} onClick={() => handleLevel(l)} className="lvl-btn">{l}</button>
+            ))}
           </div>
-        ) : (
-          <>
-            <p style={{ fontSize: '24px', margin: '20px 0', lineHeight: '1.4' }}><strong>{currentSentence.text}</strong></p>
-            <p style={{ color: '#aaa', fontSize: '12px' }}>難度: {currentSentence.level}</p>
-
-            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '25px' }}>
-              {!isListening ? (
-                <button onClick={startListening} style={{ fontSize: '18px', padding: '12px 25px', borderRadius: '15px', border: 'none', background: '#4CAF50', color: 'white', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 0 #388E3C' }}>
-                  🎙️ 讀一次
-                </button>
-              ) : (
-                <button onClick={stopListening} className="blinking" style={{ fontSize: '18px', padding: '12px 25px', borderRadius: '15px', border: 'none', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>
-                  🛑 停止
-                </button>
-              )}
-
-              <button onClick={() => speak(currentSentence.text)} style={{ fontSize: '18px', padding: '12px 25px', borderRadius: '15px', border: 'none', background: '#007AFF', color: 'white', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 0 #0056b3' }}>
-                🔊 聽示範
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-
-      {score !== null && !isLoading && (
-        <div style={{ background: 'white', padding: '20px', borderRadius: '15px', marginTop: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-          <h2 style={{ fontSize: '30px', color: score > 70 ? '#4CAF50' : '#FF9800', margin: '10px 0' }}>{score}%</h2>
-          <p style={{ fontSize: '20px', margin: '10px 0' }}>{feedback}</p>
-          <p style={{ fontStyle: 'italic', color: '#888', fontSize: '14px' }}>"{transcript}"</p>
+        </div>
+      ) : (
+        <div className="quiz-box">
+          <div className="info">年級：{currentLevel} | 得分：{score} | 連勝：{streak} 🔥</div>
           
-          <button 
-            style={{ marginTop: '15px', padding: '12px 30px', fontSize: '18px', borderRadius: '12px', cursor: 'pointer', backgroundColor: '#FF9800', color: 'white', border: 'none', fontWeight: 'bold', boxShadow: '0 4px 0 #F57C00' }}
-            onClick={() => generateQuestion(selectedGrade)}
-          >
-            下一題 (AI) ➡️
-          </button>
+          <div className="q-card">
+            <h2 className="q-text">{question?.q}</h2>
+            <p className="q-trans">({question?.t})</p>
+            
+            <div className="options">
+              {question?.shuffledOptions.map(opt => (
+                <button key={opt} onClick={() => checkAnswer(opt)} className="opt-btn">{opt}</button>
+              ))}
+            </div>
+            <p className="feedback">{msg}</p>
+          </div>
+
+          <button onClick={() => setCurrentLevel(null)} className="back-btn">返回選單</button>
         </div>
       )}
     </div>
   );
 }
+
+export default App;
