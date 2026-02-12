@@ -33,7 +33,7 @@ export default function App() {
 
     try {
       // 這是命令 AI 的「咒語」 (Prompt)
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
       const prompt = `
         You are an English teacher in Hong Kong using the EDB curriculum.
         Generate ONE simple, short English sentence for a Primary ${grade.replace('P', '')} student.
