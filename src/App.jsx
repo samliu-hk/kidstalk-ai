@@ -1,132 +1,123 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
-// 📚 600題庫框架 (P1-P6 各100題範例格式)
+// ==========================================
+// 📚 離線題庫中心 (你可以根據格式，繼續增加到 600 題)
+// ==========================================
 const questionBank = [
-  { level: "P1", en: "Good morning, teacher.", zh: "老師，早晨。" },
-  { level: "P1", en: "This is a red apple.", zh: "這是一個紅色的蘋果。" },
-  { level: "P2", en: "I go to school by bus.", zh: "我搭巴士去返學。" },
-  { level: "P2", en: "My sister likes to sing.", zh: "我妹妹喜歡唱歌。" },
-  { level: "P3", en: "The elephant is bigger than the cat.", zh: "大象比貓大。" },
-  { level: "P4", en: "I watched a movie yesterday.", zh: "我昨天看了一套電影。" },
-  { level: "P5", en: "If it rains, I will stay at home.", zh: "如果落雨，我會留喺屋企。" },
-  { level: "P6", en: "We should protect the environment.", zh: "我們應該保護環境。" },
-  // ... 請按此格式增加題目至 600 題
+  // P1: 基本單字與顏色 (範例)
+  { level: "P1", q: "Apple", t: "蘋果", options: ["Apple", "Orange", "Banana", "Pear"], a: "Apple" },
+  { level: "P1", q: "Red", t: "紅色", options: ["Blue", "Green", "Red", "Pink"], a: "Red" },
+  { level: "P1", q: "Dog", t: "狗", options: ["Cat", "Dog", "Bird", "Fish"], a: "Dog" },
+  { level: "P1", q: "Seven", t: "七", options: ["6", "7", "8", "9"], a: "Seven" },
+  { level: "P1", q: "Happy", t: "開心", options: ["Sad", "Happy", "Angry", "Tired"], a: "Happy" },
+  // ... 這裡可以繼續複製貼上 P1 題目
+
+  // P2: 簡單句子與家庭 (範例)
+  { level: "P2", q: "He is my ____.", t: "他是我的父親。", options: ["mother", "father", "sister", "brother"], a: "father" },
+  { level: "P2", q: "I ____ to school.", t: "我走路去上學。", options: ["walk", "fly", "swim", "sleep"], a: "walk" },
+  { level: "P2", q: "This is a ____.", t: "這是一支鉛筆。", options: ["book", "bag", "pencil", "ruler"], a: "pencil" },
+  { level: "P2", q: "She ____ ice cream.", t: "她喜歡雪糕。", options: ["like", "likes", "liking", "liked"], a: "likes" },
+  // ... 這裡可以繼續複製貼上 P2 題目
+
+  // P3: 比較級與時間 (範例)
+  { level: "P3", q: "The elephant is ____ than the cat.", t: "大象比貓大。", options: ["big", "bigger", "biggest", "small"], a: "bigger" },
+  { level: "P3", q: "It is ____ ten.", t: "現在是十點十五分。", options: ["half past", "quarter past", "to", "at"], a: "quarter past" },
+  { level: "P3", q: "I eat breakfast ____ the morning.", t: "我在早上食早餐。", options: ["at", "on", "in", "to"], a: "in" },
+
+  // P4: 過去式與數量 (範例)
+  { level: "P4", q: "I ____ a movie last night.", t: "我昨晚看了一場電影。", options: ["watch", "watches", "watched", "watching"], a: "watched" },
+  { level: "P4", q: "How ____ sugar do you need?", t: "你需要多少糖？", options: ["many", "much", "long", "often"], a: "much" },
+
+  // P5: 將來式與副詞 (範例)
+  { level: "P5", q: "We ____ go to the zoo tomorrow.", t: "我們明天將會去動物園。", options: ["will", "did", "have", "are"], a: "will" },
+  { level: "P5", q: "He runs ____.", t: "他跑得很快。", options: ["quick", "quickly", "fastly", "slow"], a: "quickly" },
+
+  // P6: 被動式與連接詞 (範例)
+  { level: "P6", q: "The cake ____ eaten by the boy.", t: "蛋糕被那個男孩吃了。", options: ["is", "was", "were", "been"], a: "was" },
+  { level: "P6", q: "I don't know ____ to do.", t: "我不知道該做什麼。", options: ["what", "which", "who", "where"], a: "what" },
 ];
 
 function App() {
-  const [lvl, setLvl] = useState(null);
-  const [currentQ, setCurrentQ] = useState(null);
-  const [isListening, setIsListening] = useState(false);
-  const [score, setScore] = useState(null);
-  const [streak, setStreak] = useState(0);
-  const [rocket, setRocket] = useState(false);
-  const [advice, setAdvice] = useState("");
+  const [currentLevel, setCurrentLevel] = useState(null);
+  const [question, setQuestion] = useState(null);
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0); // 連勝紀錄
+  const [rocket, setRocket] = useState(false); // 火箭開關
+  const [msg, setMsg] = useState("");
 
-  // 🎤 Web Speech API 設定
-  const recognitionRef = useRef(null);
+  // 隨機抽題
+  const nextQuestion = (lvl) => {
+    const filtered = questionBank.filter(i => i.level === lvl);
+    const randomQ = filtered[Math.floor(Math.random() * filtered.length)];
+    // 隨機打亂選項
+    const shuffled = [...randomQ.options].sort(() => Math.random() - 0.5);
+    setQuestion({ ...randomQ, shuffledOptions: shuffled });
+    setMsg("");
+  };
 
-  useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.lang = 'en-US';
-      recognitionRef.current.continuous = false;
+  const handleLevel = (lvl) => {
+    setCurrentLevel(lvl);
+    setScore(0);
+    setStreak(0);
+    nextQuestion(lvl);
+  };
 
-      recognitionRef.current.onresult = (event) => {
-        const transcript = event.results[0][0].transcript.toLowerCase().replace(/[.,!]/g, "");
-        const target = currentQ.en.toLowerCase().replace(/[.,!]/g, "");
-        calculateScore(transcript, target);
-        setIsListening(false);
-      };
-
-      recognitionRef.current.onerror = () => setIsListening(false);
-    }
-  }, [currentQ]);
-
-  // 📊 簡易 AI 發音評分演算法
-  const calculateScore = (spoken, target) => {
-    const spokenWords = spoken.split(" ");
-    const targetWords = target.split(" ");
-    let matches = 0;
-    
-    targetWords.forEach(word => {
-      if (spokenWords.includes(word)) matches++;
-    });
-
-    const finalScore = Math.round((matches / targetWords.length) * 100);
-    setScore(finalScore);
-
-    if (finalScore >= 80) {
+  const checkAnswer = (ans) => {
+    if (ans === question.a) {
       const newStreak = streak + 1;
+      setScore(score + 1);
       setStreak(newStreak);
-      setAdvice("太棒了！發音非常準確！");
-      if (newStreak > 0 && newStreak % 10 === 0) launchRocket();
+      setMsg("✅ 答對了！你真棒！");
+
+      // 🚀 每 10 題彈出火箭
+      if (newStreak > 0 && newStreak % 10 === 0) {
+        setRocket(true);
+        setTimeout(() => setRocket(false), 2000);
+      }
+
+      setTimeout(() => nextQuestion(currentLevel), 1200);
     } else {
-      setStreak(0);
-      setAdvice(`試下讀準啲：${targetWords.filter(w => !spokenWords.includes(w)).join(", ")}`);
+      setMsg(`❌ 答錯啦，正確答案是：${question.a}`);
+      setStreak(0); // 斷連勝
     }
-  };
-
-  const launchRocket = () => {
-    setRocket(true);
-    setTimeout(() => setRocket(false), 2500);
-  };
-
-  const startQuiz = (selectedLvl) => {
-    setLvl(selectedLvl);
-    const filtered = questionBank.filter(q => q.level === selectedLvl);
-    setCurrentQ(filtered[Math.floor(Math.random() * filtered.length)]);
-    setScore(null);
-    setAdvice("");
   };
 
   return (
     <div className="container">
-      <h1 style={{color: '#FF6B6B'}}>Kidstalk AI 老師 🚀</h1>
-      
-      {!lvl ? (
+      {/* 🚀 火箭動畫 */}
+      {rocket && <div className="rocket-fly">🚀</div>}
+
+      <h1 className="title">Kidstalk 英文大挑戰 🌟</h1>
+
+      {!currentLevel ? (
         <div className="menu">
-          <h3>揀個年級開始啦：</h3>
-          {['P1', 'P2', 'P3', 'P4', 'P5', 'P6'].map(p => (
-            <button key={p} className="btn-lvl" onClick={() => startQuiz(p)}>{p}</button>
-          ))}
+          <h2>請選擇年級：</h2>
+          <div className="btn-group">
+            {['P1', 'P2', 'P3', 'P4', 'P5', 'P6'].map(l => (
+              <button key={l} onClick={() => handleLevel(l)} className="lvl-btn">{l}</button>
+            ))}
+          </div>
         </div>
       ) : (
-        <div className="quiz">
+        <div className="quiz-box">
+          <div className="info">年級：{currentLevel} | 得分：{score} | 連勝：{streak} 🔥</div>
+          
           <div className="q-card">
-            <p style={{color: '#888'}}>{lvl} 練習</p>
-            <h2 style={{fontSize: '1.8rem'}}>{currentQ?.en}</h2>
-            <p style={{fontSize: '1.2rem', color: '#4ECDC4'}}>{currentQ?.zh}</p>
+            <h2 className="q-text">{question?.q}</h2>
+            <p className="q-trans">({question?.t})</p>
             
-            {score !== null && (
-              <div>
-                <div className="score-badge">{score}分</div>
-                <p className="suggestion">{advice}</p>
-              </div>
-            )}
+            <div className="options">
+              {question?.shuffledOptions.map(opt => (
+                <button key={opt} onClick={() => checkAnswer(opt)} className="opt-btn">{opt}</button>
+              ))}
+            </div>
+            <p className="feedback">{msg}</p>
           </div>
 
-          <p>撳住個咪，讀出英文句子：</p>
-          <button 
-            className={`mic-btn ${isListening ? 'active' : ''}`}
-            onMouseDown={() => { setIsListening(true); recognitionRef.current.start(); }}
-            onMouseUp={() => recognitionRef.current.stop()}
-            onTouchStart={() => { setIsListening(true); recognitionRef.current.start(); }}
-            onTouchEnd={() => recognitionRef.current.stop()}
-          >
-            {isListening ? '👂' : '🎤'}
-          </button>
-
-          <div style={{marginTop: '20px'}}>
-            <button className="btn-lvl" onClick={() => startQuiz(lvl)} style={{background: '#aaa'}}>下一題</button>
-            <button className="btn-lvl" onClick={() => setLvl(null)} style={{background: '#666'}}>返回</button>
-          </div>
-          <p>🔥 連勝：{streak} (10 題發射火箭！)</p>
+          <button onClick={() => setCurrentLevel(null)} className="back-btn">返回選單</button>
         </div>
       )}
-
-      <div className={`rocket-anim ${rocket ? 'rocket-fly' : ''}`}>🚀</div>
     </div>
   );
 }
