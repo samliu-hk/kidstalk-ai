@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // 初始化 Google AI (從 .env 讀取密碼)
 // 暫時直接貼密碼
-const genAI = new GoogleGenerativeAI("AIzaSyCP6PYxc7TQ1ARxbA7xToNoY3zAsKvejvQ");
+const genAI = new GoogleGenerativeAI("AIzaSyDV1NzxXdWR5xWnpmgBVmiDoUNJvoODslA");
 export default function App() {
   // 預設一開始的題目
   const [currentSentence, setCurrentSentence] = useState({ text: "Hello, welcome to English class!", level: "P1" });
