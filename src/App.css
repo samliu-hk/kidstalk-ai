@@ -1,96 +1,57 @@
-.app {
+.app-container {
   text-align: center;
   padding: 20px;
-  font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
-  background: #eefbff;
+  background: #f0faff;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
 }
 
-.title { color: #ff6b6b; font-size: 1.8rem; margin-top: 20px; }
-
-.lvl-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-top: 30px;
-}
+.title { color: #ff6b6b; font-size: 1.8rem; margin-bottom: 20px; }
 
 .lvl-btn {
-  padding: 25px;
-  font-size: 1.5rem;
-  background: #4ecdc4;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  box-shadow: 0 5px 0 #3db3ab;
-  cursor: pointer;
+  width: 80px; height: 60px; margin: 10px;
+  background: #4a90e2; color: white; border: none;
+  border-radius: 12px; font-size: 1.2rem; cursor: pointer;
 }
 
 .card {
-  background: white;
-  padding: 30px;
-  border-radius: 30px;
-  margin: 20px 0;
-  width: 90vw;
-  max-width: 400px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  border: 4px solid #4ecdc4;
+  background: white; padding: 25px; border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1); margin: 20px auto;
+  max-width: 400px; border: 3px solid #4ecdc4;
 }
 
-.en-text { font-size: 1.8rem; color: #333; margin: 0; }
-.zh-text { font-size: 1.1rem; color: #666; margin-top: 10px; }
+.en-text { font-size: 2.2rem; color: #333; margin: 10px 0; }
+.zh-text { font-size: 1.2rem; color: #888; }
+
+.action-btns { display: flex; flex-direction: column; align-items: center; gap: 15px; }
 
 .mic-btn {
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  border: none;
-  background: #ff6b6b;
-  color: white;
-  font-size: 1.2rem;
-  box-shadow: 0 10px 0 #e64b4b;
-  margin: 20px 0;
-  cursor: pointer;
-  transition: 0.2s;
+  width: 80%; padding: 15px; border-radius: 50px; border: none;
+  background: #ff6b6b; color: white; font-size: 1.2rem;
+  box-shadow: 0 6px 0 #e64b4b; cursor: pointer;
 }
 
-.mic-btn.active {
-  background: #ff0000;
-  transform: translateY(5px);
-  box-shadow: 0 5px 0 #e64b4b;
-  animation: pulse 1s infinite;
+.mic-btn.listening { background: #ff4757; animation: pulse 1s infinite; }
+
+.speak-btn {
+  width: 80%; padding: 15px; border-radius: 50px; border: none;
+  background: #4ecdc4; color: white; font-size: 1.1rem; cursor: pointer;
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+.score-circle { font-size: 3rem; color: #ff6b6b; font-weight: bold; }
+
+.rocket-fly {
+  position: fixed; bottom: -100px; left: 45%; font-size: 100px;
+  animation: launch 2.5s forwards; z-index: 999;
 }
 
-.score-num { font-size: 3.5rem; color: #ff6b6b; font-weight: bold; }
-
-/* 🚀 火箭動畫 */
-.rocket-animation {
-  position: fixed;
-  bottom: -100px;
-  left: 45%;
-  font-size: 100px;
-  animation: flyUp 3s ease-in-out forwards;
-  z-index: 1000;
+@keyframes launch {
+  0% { bottom: -100px; }
+  100% { bottom: 120%; }
 }
 
-@keyframes flyUp {
-  0% { bottom: -100px; opacity: 1; }
-  100% { bottom: 120%; opacity: 0; }
-}
-
-.nav-btns button {
-  margin: 10px;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  background: white;
-}
+.footer-nav { margin-top: 30px; display: flex; justify-content: center; gap: 20px; }
+.footer-nav button { padding: 10px 20px; border-radius: 8px; border: 1px solid #ddd; background: #fff; }
