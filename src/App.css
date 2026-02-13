@@ -1,77 +1,120 @@
+/* 基本排版 */
 .app-container {
-  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
   padding: 20px;
-  background-color: #f0f9ff;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f0f8ff;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica;
 }
 
-.main-title { color: #ff7675; font-size: 24px; margin-bottom: 5px; }
-.status-bar { font-size: 16px; color: #555; margin-bottom: 20px; }
+.main-title {
+  color: #ff7675;
+  font-size: 24px;
+}
 
-/* 核心大卡片 */
 .main-card {
   background: white;
-  border-radius: 25px;
-  padding: 40px 20px;
-  margin: 0 auto 30px;
-  max-width: 350px;
-  border: 3px solid #a2dad7;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  padding: 30px 20px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  border: 2px solid #a2d9ce;
 }
 
-.display-en { font-size: 28px; color: #333; margin: 0; font-weight: 800; }
-.display-zh { font-size: 18px; color: #999; margin-top: 15px; }
+.display-en {
+  font-size: 32px;
+  margin: 0;
+  color: #2c3e50;
+}
 
-.big-score { font-size: 60px; color: #ff7675; font-weight: bold; margin: 20px 0 10px; }
-.feedback-msg { font-size: 18px; color: #2ecc71; font-weight: bold; }
+.display-zh {
+  color: #95a5a6;
+  font-size: 18px;
+  margin-top: 10px;
+}
 
-/* 長條按鈕樣式 */
-.control-panel { width: 100%; max-width: 350px; margin: 0 auto; }
+/* 語音對比盒 (紅色圈住嗰個位置) */
+.comparison-box {
+  margin-top: 15px;
+  padding: 15px;
+  background: #fff9db;
+  border-radius: 12px;
+  border: 2px dashed #fab005;
+}
 
+.heard-label {
+  font-size: 14px;
+  color: #f08c00;
+  margin: 0;
+  font-weight: bold;
+}
+
+.heard-text {
+  font-size: 24px;
+  color: #e67e22;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+.big-score {
+  font-size: 60px;
+  font-weight: bold;
+  color: #ff7675;
+  margin: 10px 0;
+}
+
+/* 按鈕樣式 */
 .long-btn {
   width: 100%;
   padding: 15px;
+  font-size: 18px;
   border-radius: 30px;
   border: none;
-  font-size: 18px;
+  margin-bottom: 12px;
+  cursor: pointer;
   font-weight: bold;
   color: white;
-  margin-bottom: 15px;
-  cursor: pointer;
-  display: block;
+  transition: transform 0.1s;
 }
 
-.mic-btn { background-color: #ff7675; box-shadow: 0 4px #e86362; }
-.mic-btn.active { background-color: #d63031; animation: blink 1s infinite; }
+.mic-btn { background-color: #ff7675; }
+.mic-btn.active { background-color: #d63031; animation: pulse 1.5s infinite; }
+.demo-btn { background-color: #74b9ff; }
 
-.demo-btn { background-color: #81ecec; color: #2d3436; box-shadow: 0 4px #74b9ff; }
-
-/* 底部導航掣 */
-.bottom-nav { display: flex; justify-content: space-between; gap: 10px; }
 .small-btn {
-  flex: 1;
-  padding: 10px;
-  border-radius: 12px;
+  padding: 10px 20px;
+  border-radius: 10px;
   border: 1px solid #ddd;
   background: white;
-  color: #74b9ff;
-  font-size: 14px;
+  margin: 0 5px;
 }
 
 /* 火箭動畫 */
-.rocket-fly {
+.rocket-animation {
   position: fixed;
-  bottom: -100px;
-  left: 45%;
-  font-size: 80px;
-  animation: fly 2.5s forwards;
-  z-index: 99;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(255, 165, 0, 0.6);
+  z-index: 1000;
+  animation: launch 3s ease-in-out forwards;
 }
 
-@keyframes fly { 0% { bottom: -100px; } 100% { bottom: 120%; } }
-@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+@keyframes launch {
+  0% { transform: translate(-50%, 400px); opacity: 0; }
+  20% { transform: translate(-50%, -50%); opacity: 1; }
+  80% { transform: translate(-50%, -50%); opacity: 1; }
+  100% { transform: translate(-50%, -1000px); opacity: 0; }
+}
 
-/* 等級選單 */
-.lvl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
-.lvl-item { padding: 20px; font-size: 20px; background: #fff; border: 2px solid #81ecec; border-radius: 15px; }
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
