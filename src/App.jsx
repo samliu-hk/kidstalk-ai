@@ -118,7 +118,7 @@ function App() {
 
           <div className="control-panel">
           <button className={`mic-btn ${isListening ? 'active' : ''}`} onClick={handleMic}>
-              {isListening ? "🛑 停止錄音" : "🎤 按一下讀一次"}
+            {isListening ? "👂 聽緊你講..." : "🎤 按一下讀一次"}
             </button>
             
             <button className="long-btn demo-btn" onClick={playDemo}>
