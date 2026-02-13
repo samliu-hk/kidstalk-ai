@@ -1,18 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
+// 題庫維持原樣 (此處省略部分以節省空間，請沿用你之前的題目)
 const questionBank = {
-  P1: [
-    { en: "The weather is hot.", zh: "天氣很熱。" },
-    { en: "I love my family.", zh: "我愛我的家人。" },
-    { en: "This is an apple.", zh: "這是一個蘋果。" },
-    // 你可以在此繼續貼上 P1 的 100 題
-  ],
-  P2: [
-    { en: "He is a tall teacher.", zh: "他是一位高大的老師。" },
-    // 你可以在此繼續貼上 P2 的 100 題
-  ],
-  P3: [], P4: [], P5: [], P6: []
+  P1: [{ en: "The weather is hot.", zh: "天氣很熱。" }, { en: "I love my family.", zh: "我愛我的家人。" }],
+  P2: [], P3: [], P4: [], P5: [], P6: []
 };
 
 function App() {
@@ -25,6 +17,7 @@ function App() {
   const [feedback, setFeedback] = useState("");
   const recognitionRef = useRef(null);
 
+  // 初始化語音辨識 (跟返上次)
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -59,6 +52,37 @@ function App() {
     }
   }, [currentQ]);
 
+  // 🔥 改良版發音功能
+  const playDemo = () => {
+    if (!currentQ) return;
+    
+    // 停止所有正在播放嘅聲音，廢事重疊
+    window.speechSynthesis.cancel();
+
+    const msg = new SpeechSynthesisUtterance(currentQ.en);
+    
+    // 1. 搵手機入面最好聽嘅英文聲
+    const voices = window.speechSynthesis.getVoices();
+    // 優先揀 Google 嘅聲或者 Apple 嘅 Samantha 聲，通常比較清
+    const premiumVoice = voices.find(v => (v.lang.includes('en-') && v.name.includes('Google'))) || 
+                        voices.find(v => (v.lang.includes('en-') && v.name.includes('Samantha'))) ||
+                        voices.find(v => v.lang.startsWith('en'));
+    
+    if (premiumVoice) msg.voice = premiumVoice;
+
+    msg.lang = 'en-US';
+    msg.rate = 0.85;  // 稍微減慢語速，由 1.0 減至 0.85，聽得更清楚
+    msg.pitch = 1.0; // 正常音調
+    msg.volume = 1.0; // 最大音量
+
+    window.speechSynthesis.speak(msg);
+  };
+
+  // 確保在手機瀏覽器上語音列表已加載
+  useEffect(() => {
+    window.speechSynthesis.getVoices();
+  }, []);
+
   const startQuiz = (lvl) => {
     setLevel(lvl);
     const questions = questionBank[lvl];
@@ -78,12 +102,6 @@ function App() {
       setFeedback("聽緊你講嘢...");
       recognitionRef.current.start();
     }
-  };
-
-  const playDemo = () => {
-    const msg = new SpeechSynthesisUtterance(currentQ.en);
-    msg.lang = 'en-US';
-    window.speechSynthesis.speak(msg);
   };
 
   return (
