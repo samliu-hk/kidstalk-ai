@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
-import lindaAvatar from './linda-avatar.png';
+import lindaAvatar from './linda-avatar.png.JPGSS';
 // 題庫 (請自行貼入你之前的 P1-P6 完整題庫)
 const questionBank = {
   P1: [// P1 題目
