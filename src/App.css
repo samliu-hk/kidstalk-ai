@@ -177,6 +177,146 @@
   50% { transform: scale(1.02); }
   100% { transform: scale(1); }
 }
+.title-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%; /* 令張相變圓形 */
+  object-fit: cover;
+  margin-right: 12px;
+  border: 2px solid #ff7675;
+  vertical-align: middle;
+}
+
+.main-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.display-en {
+  font-size: 40px; /* 英文題目再大一點 */
+  margin: 0;
+  color: #2c3e50;
+}
+
+.display-zh {
+  color: #95a5a6;
+  font-size: 22px;
+  margin-top: 15px;
+}
+
+/* 語音對比盒 */
+.comparison-box {
+  margin-top: 20px;
+  padding: 20px;
+  background: #fff9db;
+  border-radius: 15px;
+  border: 3px dashed #fab005;
+}
+
+.heard-label {
+  font-size: 16px;
+  color: #f08c00;
+  margin: 0;
+  font-weight: bold;
+}
+
+.heard-text {
+  font-size: 28px;
+  color: #e67e22;
+  font-weight: bold;
+  margin: 10px 0;
+  font-style: italic;
+}
+
+/* --- 修改 2: 特大評語文字 --- */
+.feedback-hint {
+  font-size: 26px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #d35400;
+}
+
+.big-score {
+  font-size: 70px;
+  font-weight: bold;
+  color: #ff7675;
+  margin: 15px 0;
+}
+
+/* 操作按鈕 (錄音/示範) */
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.long-btn {
+  width: 100%;
+  padding: 18px;
+  font-size: 22px;
+  border-radius: 35px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.mic-btn { background-color: #ff7675; }
+.mic-btn.active { background-color: #d63031; animation: pulse 1.5s infinite; }
+.demo-btn { background-color: #74b9ff; }
+
+/* --- 修改 3: 特大底部導航按鈕 --- */
+.bottom-nav {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.small-btn {
+  padding: 18px 30px;
+  font-size: 20px;
+  border-radius: 15px;
+  border: 2px solid #bdc3c7;
+  background: white;
+  margin: 0 8px;
+  flex: 1; /* 讓兩個按鈕平均分配寬度 */
+  cursor: pointer;
+  color: #636e72;
+  font-weight: bold;
+}
+
+/* 火箭動畫 */
+.rocket-animation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 60px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 30px;
+  box-shadow: 0 0 30px rgba(255, 165, 0, 0.6);
+  z-index: 1000;
+  animation: launch 3s ease-in-out forwards;
+  text-align: center;
+  font-weight: bold;
+  color: #e67e22;
+}
+
+@keyframes launch {
+  0% { transform: translate(-50%, 400px); opacity: 0; }
+  20% { transform: translate(-50%, -50%); opacity: 1; }
+  80% { transform: translate(-50%, -50%); opacity: 1; }
+  100% { transform: translate(-50%, -1000px); opacity: 0; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
   .title-avatar {
   width: 45px;
   height: 45px;

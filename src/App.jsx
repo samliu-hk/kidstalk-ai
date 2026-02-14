@@ -3,7 +3,7 @@ import './App.css';
 import lindaAvatar from './linda-avatar.png';
 // 題庫 (請自行貼入你之前的 P1-P6 完整題庫)
 const questionBank = {
-  P1: [ // P1 題目
+  P1: [// P1 題目
 { en: "A red apple.", zh: "一個紅色的蘋果。" }, { en: "The cat is small.", zh: "這隻貓很小。" },
 { en: "I see a bird.", zh: "我看見一隻鳥。" }, { en: "Stand up, please.", zh: "請站起來。" },
 { en: "Sit down, please.", zh: "請坐下。" }, { en: "Open your book.", zh: "打開你的書。" },
@@ -206,8 +206,8 @@ const questionBank = {
 { en: "The stars are shining.", zh: "星星正在閃爍。" }, { en: "The moon is bright tonight.", zh: "今晚月亮很亮。" },
 { en: "I am interested in space.", zh: "我對太空感興趣。" }, { en: "Astronauts go to the moon.", zh: "太空人去月球。" },
 { en: "Earth is a beautiful planet.", zh: "地球是一顆美麗的星球。" }, { en: "Protect our environment.", zh: "保護我們的環境。" },
-{ en: "Don't use plastic bags.", zh: "不要用塑膠袋。" }, { en: "Bring your own water bottle.", zh: "自備水樽。" }  ],
-  P5: [ // P5 題目
+{ en: "Don't use plastic bags.", zh: "不要用塑膠袋。" }, { en: "Bring your own water bottle.", zh: "自備水樽。" } ],
+  P5: [// P5 題目
 { en: "I have been to Japan twice.", zh: "我去過日本兩次。" }, { en: "Have you ever seen a koala?", zh: "你見過樹熊嗎？" },
 { en: "She has already finished her project.", zh: "她已經完成了她的專題研習。" }, { en: "He hasn't cleaned his room yet.", zh: "他還未清潔他的房間。" },
 { en: "I have known him for five years.", zh: "我已經認識他五年了。" }, { en: "They have lived here since 2010.", zh: "他們自 2010 年起就住在這裏。" },
@@ -419,7 +419,7 @@ function App() {
       
       <h1 className="main-title">
   <img src={lindaAvatar} alt="Linda" className="title-avatar" />
-  Kidstalk AI 口語特訓
+  Linda's AI 口語特訓
 </h1>
 
       {!level ? (
