@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
-
+import lindaAvatar from './linda-avatar.png';
 // 題庫 (請自行貼入你之前的 P1-P6 完整題庫)
 const questionBank = {
   P1: [// P1 題目
@@ -417,7 +417,10 @@ function App() {
       {/* 火箭動畫元件 */}
       {rocket && <div className="rocket-animation">🚀 10連勝達成！</div>}
       
-      <h1 className="main-title">🦁 Kidstalk AI 口語特訓</h1>
+      <h1 className="main-title">
+  <img src={lindaAvatar} alt="Linda" className="title-avatar" />
+  Linda's AI 口語特訓
+</h1>
 
       {!level ? (
         <div className="menu-screen">
